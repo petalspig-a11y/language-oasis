@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lia | Translation Workbench</title>
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-main: #111111;
+            --text-sub: #555555;
+            --text-muted: #777777;
+            --card-bg: #fafafa;
+            --border-color: #eeeeee;
+            --blue-accent: #0066cc;
+            --blue-hover: #004499;
+            --orange-accent: #e65c00;
+            --purple-accent: #6f42c1;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        nav {
+            width: 100%;
+            max-width: 1100px;
+            padding: 30px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-sizing: border-box;
+        }
+
+        .nav-logo {
+            text-decoration: none;
+            line-height: 1.2;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .back-link, .api-toggle-btn {
+            text-decoration: none;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: color 0.2s;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .back-link:hover, .api-toggle-btn:hover { color: var(--text-main); }
+
+        /* API 配置抽屉/弹窗样式 ⚙️ */
+        .api-panel {
+            display: none;
+            width: 100%;
+            max-width: 1100px;
+            padding: 0 20px;
+            box-sizing: border-box;
+            margin-bottom: 20px;
+        }
+        .api-panel-inner {
+            background: var(--card-bg);
+            border: 1px solid var(--text-main);
+            padding: 15px 20px;
+            border-radius: 6px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .api-input {
+            flex: 1;
+            min-width: 250px;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 0.9rem;
+            font-family: monospace;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1100px;
+            padding: 0 20px 60px 20px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0 0 30px 0;
+            letter-spacing: -0.5px;
+        }
+
+        .workbench {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 35px;
+        }
+
+        @media (max-width: 768px) {
+            .workbench { grid-template-columns: 1fr; }
+        }
+
+        .panel {
+            border-top: 1px solid var(--text-main);
+            padding-top: 20px;
+        }
+
+        .panel-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 15px;
+        }
+
+        .style-presets {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .preset-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 6px 14px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-sub);
+        }
+
+        .preset-btn:hover {
+            border-color: var(--text-main);
+            color: var(--text-main);
+        }
+
+        .preset-btn.active {
+            background: var(--text-main);
+            color: #fff;
+            border-color: var(--text-main);
+        }
+
+        textarea {
+            width: 100%;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 12px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            box-sizing: border-box;
+            background-color: var(--card-bg);
+            line-height: 1.5;
+        }
+
+        textarea:focus { outline: none; border-color: var(--text-main); }
+
+        .chat-history {
+            height: 220px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 12px;
+            overflow-y: auto;
+            background-color: var(--card-bg);
+            font-size: 0.9rem;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .msg { padding: 10px 14px; border-radius: 6px; max-width: 85%; line-height: 1.4; word-break: break-all; }
+        .msg.user { background: #e2f0fd; align-self: flex-end; color: #111; border: 1px solid #cce2f7; }
+        .msg.ai { background: #ffffff; border: 1px solid var(--border-color); align-self: flex-start; }
+
+        .btn {
+            display: inline-block;
+            background-color: var(--text-main);
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .btn:hover { opacity: 0.9; }
+        .btn-orange { background-color: var(--orange-accent); }
+        .btn-outline { background-color: transparent; color: var(--text-main); border: 1px solid var(--text-main); }
+        .btn-outline:hover { background-color: var(--card-bg); }
+
+        .glossary-box {
+            margin-top: 15px;
+            background: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 15px;
+        }
+        .glossary-title {
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--purple-accent);
+            margin-bottom: 10px;
+        }
+        .glossary-list {
+            margin: 0;
+            padding-left: 20px;
+            font-size: 0.9rem;
+            color: var(--text-sub);
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="index.html" class="nav-logo" style="display: flex; align-items: baseline; gap: 8px;">
+            <span style="font-weight: 700; font-size: 1.1rem; color: var(--text-main);">Lia |</span>
+            <span style="font-weight: 400; font-size: 0.9rem; color: var(--text-muted);">English Oasis</span>
+        </a>
+        <div class="nav-links">
+            <button class="api-toggle-btn" onclick="toggleApiPanel()">⚙️ API 配置</button>
+            <a href="index.html" class="back-link">← Back to Oasis</a>
+        </div>
+    </nav>
+
+    <div class="api-panel" id="apiPanel">
+        <div class="api-panel-inner">
+            <span style="font-size: 0.85rem; font-weight: bold;">DeepSeek API Key:</span>
+            <input type="password" id="apiKeyInput" class="api-input" placeholder="填入 sk-... 开头的密钥，数据安全存在本地">
+            <button class="btn" style="padding: 6px 15px; font-size: 0.8rem;" onclick="saveApiKey()">保存并记忆</button>
+        </div>
+    </div>
+
+   <main class="container">
+        <h1>Translation Workbench</h1>
+
+        <div class="workbench">
+            <div style="display: flex; flex-direction: column; gap: 30px;">
+                
+                <div class="panel">
+                    <div class="panel-title">01 / Style Preset & Source Text</div>
+                    
+                    <div class="style-presets">
+                        <button class="preset-btn active" id="style-general" onclick="selectStyle('general', this)">🌷 通用转译</button>
+                        <button class="preset-btn" id="style-literary" onclick="selectStyle('literary', this)">🌷 文学风</button>
+                        <button class="preset-btn" id="style-newmedia" onclick="selectStyle('newmedia', this)">🌷 新媒体</button>
+                        <button class="preset-btn" id="style-news" onclick="selectStyle('news', this)">🌷 新新闻风</button>
+                        <button class="preset-btn" id="style-travel" onclick="selectStyle('travel', this)">🌷 文旅风</button>
+                    </div>
+
+                    <textarea id="sourceText" style="height: 110px;" placeholder="Type or paste your text here..."></textarea>
+                    
+                    <div style="display: flex; gap: 10px; margin-top: 12px;">
+                        <button class="btn btn-orange" id="translateBtn" onclick="generateBaseTranslation()">一键获取 AI 初译</button>
+                        <button class="btn btn-outline" id="reverseBtn" onclick="reverseCheck()">🔍 译文一键反查</button>
+                    </div>
+
+                    <div class="glossary-box" id="glossaryBox" style="display: none;">
+                        <div class="glossary-title">✨ Oasis Glossary / 灵感语料积累</div>
+                        <ul class="glossary-list" id="glossaryList"></ul>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-title">02 / Refinement Dialogue</div>
+                    <div class="chat-history" id="chatHistory">
+                        <div class="msg ai">选择上方 🌷 风格预设并获取初译后，如果你有更细腻的调整想法，可以在下方继续指引我改译。</div>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="chatInput" placeholder="告诉 AI 如何调整译文..." style="flex: 1; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 0.9rem;" onkeydown="if(event.key==='Enter') sendAdjustment()">
+                        <button class="btn" id="sendBtn" onclick="sendAdjustment()">发送指令</button>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="panel" style="display: flex; flex-direction: column; justify-content: space-between;">
+                <div style="display: flex; flex-direction: column; flex: 1;">
+                    <div class="panel-title">03 / Final Polished Canvas</div>
+                    <div style="font-size: 0.85rem; color: var(--text-sub); margin-top: -10px; margin-bottom: 15px;">作为一个完全自由、可编辑的画布。把满意的词句整合于此，敲定最终定稿。</div>
+                    <textarea id="finalCanvas" style="flex: 1; min-height: 250px; margin-bottom: 12px; background-color: #fff; border: 1px dashed var(--text-muted);" placeholder="Final polish happens here..."></textarea>
+                </div>
+                <div style="display: flex; align-items: center; height: 42px;">
+                    <button class="btn" style="background-color: var(--blue-accent); width: 100%;" onclick="copyFinalText()">一键复制最终译本</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // 🔒 核心改动：不再将 Key 写死在代码里，而是实时从浏览器小抽屉里取
+        function getApiKey() {
+            return localStorage.getItem("lia_ds_key") || "";
+        }
+
+        // 控制配置面板的显示与隐藏
+        function toggleApiPanel() {
+            const panel = document.getElementById('apiPanel');
+            panel.style.display = (panel.style.display === 'block') ? 'none' : 'block';
+        }
+
+        // 保存密钥到本地
+        function saveApiKey() {
+            const key = document.getElementById('apiKeyInput').value.trim();
+            if(!key) return alert('请输入有效的 Key');
+            localStorage.setItem("lia_ds_key", key);
+            alert('⚙️ Key 已加密保存至您的本地浏览器，可点开即用！');
+            document.getElementById('apiPanel').style.display = 'none';
+        }
+
+        let currentStyle = 'general';
+        
+        const stylePrompts = {
+            general: "将输入的任何文本（如果是中文或中英混合文本）彻底翻译为精准、优雅、信达雅的英文。请直接输出最终的英文翻译结果，不要带有任何中文解释或前缀。",
+            literary: "你现在专注于【文学翻译】。请将输入文本彻底翻译为英文。极度注重文字的语感、隐喻、长短句的节奏美与留白，使其契合小说、散文或意识流随笔的优雅英伦/美式调性。请直接输出最终的英文翻译结果，不要任何中文解释。",
+            newmedia: "你现在专注于【新媒体文案翻译】。请将输入文本彻底翻译为英文。用词要求具备强烈网感、抓人眼球、现代且地道，完美契合海外社交媒体（如 Instagram/TikTok）的传播特质。直接输出英文结果，不要中文解释。",
+            news: "你现在专注于【新闻风翻译】。请将输入文本彻底翻译为英文。严格遵循外媒路透社或美联社等主流媒体的规范，行文客观严谨、精炼准确、结构清晰。直接输出英文结果，不要中文解释。",
+            travel: "你现在专注于【文旅风翻译】。请将输入文本彻底翻译为英文。行文需要极其优美、画面感极强、充满文化底蕴与浪漫意境，能够完美吸引海外游客。直接输出英文结果，不要中文解释。"
+        };
+
+        let conversationHistory = [];
+
+        function resetHistory() {
+            conversationHistory = [
+                {
+                    role: "user",
+                    parts: [{ text: `你是一个极其顶尖的翻译与转译专家。你的核心任务是：${stylePrompts[currentStyle]}。另外，在给出英文翻译结果后，请另起一行，用严格的格式【GLOSSARY】开始，提取出刚刚翻译文本里最值得积累的2-4个高级英文词汇、地道短语或俚语，并直接给出中文释义（格式如：* 单词/短语 (词性) - 中文释义）。不要包含任何例句或额外的废话。` }]
+                },
+                {
+                    role: "model",
+                    parts: [{ text: "明白了。我已完全加载该翻译画画风，并牢记必须将所有目标文本彻底转译为高质量的英文。接下来，我将为你提供高度定制化的纯英文翻译，并在译文下方以指定的【GLOSSARY】格式为你提取高品质的干货词汇积累。" }]
+                }
+            ];
+        }
+        resetHistory();
+
+        function selectStyle(styleName, element) {
+            currentStyle = styleName;
+            document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('active'));
+            element.classList.add('active');
+            resetHistory();
+        }
+
+        window.onload = function() {
+            // 页面加载时，自动把存好的 Key 回显到输入框里
+            const savedKey = getApiKey();
+            if(savedKey) {
+                document.getElementById('apiKeyInput').value = savedKey;
+            }
+
+            try {
+                const todayDraft = localStorage.getItem('todayTranslationDraft');
+                if (todayDraft && document.getElementById('sourceText')) {
+                    document.getElementById('sourceText').value = todayDraft;
+                    localStorage.removeItem('todayTranslationDraft'); 
+                }
+            } catch (e) {
+                console.error("读取缓存出错：", e);
+            }
+        };
+
+        async function callGeminiAPI() {
+            const url = "https://api.deepseek.com/v1/chat/completions"; 
+            const apiKey = getApiKey();
+
+            if(!apiKey) {
+                alert("💡 请先点击右上角的 '⚙️ API 配置' 输入您的 DeepSeek Key 才能激活翻译服务。");
+                document.getElementById('apiPanel').style.display = 'block';
+                return "❌ 未配置 API Key";
+            }
+
+            try {
+                const formattedMessages = conversationHistory.map(item => ({
+                    role: item.role === 'model' ? 'assistant' : 'user',
+                    content: item.parts[0].text
+                }));
+
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify({ 
+                        model: "deepseek-chat", 
+                        messages: formattedMessages,
+                        temperature: 0.5
+                    })
+                });
+                
+                const data = await response.json();
+                if (data.choices && data.choices[0].message.content) {
+                    return data.choices[0].message.content.trim();
+                } else {
+                    throw new Error("DeepSeek 服务无有效返回");
+                }
+            } catch (error) {
+                console.error("DeepSeek API 错误:", error);
+                return "❌ 出错了，请点击右上角⚙️检查 Key 是否正确，或网络是否通畅。";
+            }
+        }
+
+        function parseResponse(rawText) {
+            let translation = rawText;
+            let glossaryHtml = "";
+            
+            if (rawText.includes("【GLOSSARY】")) {
+                const parts = rawText.split("【GLOSSARY】");
+                translation = parts[0].trim();
+                const glossaryText = parts[1].trim();
+                
+                const lines = glossaryText.split('\n');
+                lines.forEach(line => {
+                    if(line.trim().startsWith('*') || line.trim().startsWith('-') || /^\d/.test(line.trim())) {
+                        let cleanLine = line.replace(/^[\*\-\s\d\.]+/,'');
+                        glossaryHtml += `<li>${cleanLine}</li>`;
+                    }
+                });
+            }
+            return { translation, glossaryHtml };
+        }
+
+        async function generateBaseTranslation() {
+            const text = document.getElementById('sourceText').value.trim();
+            if(!text) return alert('请先输入要转译的内容');
+            
+            const btn = document.getElementById('translateBtn');
+            btn.innerText = "正在转译...";
+            btn.disabled = true;
+
+            const chatHistory = document.getElementById('chatHistory');
+            chatHistory.innerHTML += `<div class="msg user">【一键初译】请转译以下文本为英文：<br>"${text}"</div>`;
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+
+            conversationHistory.push({
+                role: "user",
+                parts: [{ text: `请将以下内容完全翻译成英文，请勿保留中文：\n"${text}"` }]
+            });
+
+            const reply = await callGeminiAPI();
+            if(reply === "❌ 未配置 API Key") {
+                btn.innerText = "一键获取 AI 初译";
+                btn.disabled = false;
+                return;
+            }
+            
+            conversationHistory.push({
+                role: "model",
+                parts: [{ text: reply }]
+            });
+
+            const result = parseResponse(reply);
+
+            chatHistory.innerHTML += `<div class="msg ai"><b>【AI 初译底稿】</b><br>${result.translation.replace(/\n/g, '<br>')}</div>`;
+            document.getElementById('finalCanvas').value = result.translation; 
+            
+            if(result.glossaryHtml) {
+                document.getElementById('glossaryList').innerHTML = result.glossaryHtml;
+                document.getElementById('glossaryBox').style.display = 'block';
+            } else {
+                document.getElementById('glossaryBox').style.display = 'none';
+            }
+
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+            btn.innerText = "一键获取 AI 初译";
+            btn.disabled = false;
+        }
+
+        async function sendAdjustment() {
+            const input = document.getElementById('chatInput');
+            const cmd = input.value.trim();
+            if(!cmd) return;
+            
+            input.value = '';
+            const sendBtn = document.getElementById('sendBtn');
+            sendBtn.innerText = "微调中...";
+            sendBtn.disabled = true;
+
+            const chatHistory = document.getElementById('chatHistory');
+            chatHistory.innerHTML += `<div class="msg user">${cmd}</div>`;
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+
+            conversationHistory.push({
+                role: "user",
+                parts: [{ text: cmd }]
+            });
+
+            const reply = await callGeminiAPI();
+
+            conversationHistory.push({
+                role: "model",
+                parts: [{ text: reply }]
+            });
+
+            const result = parseResponse(reply);
+
+            chatHistory.innerHTML += `<div class="msg ai"><b>【微调译文】</b><br>${result.translation.replace(/\n/g, '<br>')}</div>`;
+            
+            if(result.glossaryHtml) {
+                document.getElementById('glossaryList').innerHTML = result.glossaryHtml;
+                document.getElementById('glossaryBox').style.display = 'block';
+            }
+
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+            sendBtn.innerText = "发送指令";
+            sendBtn.disabled = false;
+        }
+
+        async function reverseCheck() {
+            const englishText = document.getElementById('finalCanvas').value.trim();
+            if(!englishText) return alert('请确保右侧“终稿画布”中有英文译文后再进行反查。');
+
+            const revBtn = document.getElementById('reverseBtn');
+            revBtn.innerText = "正在反查...";
+            revBtn.disabled = true;
+
+            const chatHistory = document.getElementById('chatHistory');
+            chatHistory.innerHTML += `<div class="msg user">🔍 启动逆向反查，请将终稿画布中的英文重新翻译为中文。</div>`;
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+
+            const url = "https://api.deepseek.com/v1/chat/completions"; 
+            const apiKey = getApiKey();
+
+            if(!apiKey) {
+                alert("💡 请先输入您的 DeepSeek Key 才能启动反查。");
+                revBtn.innerText = "🔍 译文一键反查";
+                revBtn.disabled = false;
+                return;
+            }
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify({ 
+                        model: "deepseek-chat",
+                        messages: [{
+                            role: "user",
+                            content: `你是一个中英语言审校专家。请将以下英文忠实、精准地翻译回中文，以便用户核对语境是否走样。直接给出中文翻译，不要带任何解释：\n\n"${englishText}"`
+                        }],
+                        temperature: 0.3
+                    })
+                });
+                const data = await response.json();
+                const backToChinese = data.choices[0].message.content.trim();
+                
+                chatHistory.innerHTML += `<div class="msg ai" style="border-left: 3px solid var(--blue-accent);"><b>【🔍 译文中文反查结果】</b><br>${backToChinese.replace(/\n/g, '<br>')}</div>`;
+            } catch (e) {
+                console.error(e);
+                chatHistory.innerHTML += `<div class="msg ai">❌ 反查失败，请检查网络。</div>`;
+            }
+
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+            revBtn.innerText = "🔍 译文一键反查";
+            revBtn.disabled = false;
+        }
+
+        function copyFinalText() {
+            const canvas = document.getElementById('finalCanvas');
+            canvas.select();
+            document.execCommand('copy');
+            alert('满意译本已复制到剪贴板！');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mazzo di Flashcards // Spazio Italiano</title>
+    <style>
+        :root {
+            --bg-main: #ffffff;
+            --text-main: #111111;
+            --text-muted: #666666;
+            --text-sub: #888888;
+            --border-color: #eeeeee;
+            --accent-color: #2e7d32; 
+            --card-bg: #fafafa;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 20px;
+            margin-bottom: 40px;
+        }
+
+        .back-link {
+            text-decoration: none;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: var(--text-main);
+        }
+
+        .page-title {
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .deck-info {
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--text-sub);
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .card-deck {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .flip-card {
+            background-color: transparent;
+            width: 100%;
+            height: 220px;
+            perspective: 1000px;
+            cursor: pointer;
+            transition: all 0.4s ease;
+        }
+
+        .flip-card.removing {
+            opacity: 0;
+            transform: scale(0.8) translateY(-20px);
+            margin-bottom: -220px;
+            pointer-events: none;
+        }
+
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+            border-radius: 16px;
+        }
+
+        .flip-card.flipped .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .flip-card-front, .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            padding: 32px;
+            box-sizing: border-box;
+        }
+
+        .flip-card-front {
+            background-color: #ffffff;
+            color: var(--text-main);
+        }
+
+        .flip-card-front .word {
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-bottom: 12px;
+        }
+
+        .flip-card-front .hint {
+            font-size: 0.75rem;
+            color: var(--text-sub);
+            letter-spacing: 0.5px;
+        }
+
+        .flip-card-back {
+            background-color: var(--card-bg);
+            color: var(--text-main);
+            transform: rotateY(180deg);
+            border-left: 6px solid var(--accent-color);
+        }
+
+        .flip-card-back .meaning {
+            font-size: 1.1rem;
+            font-weight: 500;
+            line-height: 1.6;
+        }
+
+        .btn-delete-card {
+            position: absolute;
+            top: 16px;
+            right: 18px;
+            background: none;
+            border: none;
+            color: var(--text-sub);
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 5px;
+            line-height: 1;
+            z-index: 10;
+            transition: color 0.2s, transform 0.2s;
+        }
+
+        .btn-delete-card:hover {
+            color: #c62828;
+            transform: scale(1.15);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            border: 1px dashed var(--border-color);
+            border-radius: 16px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .empty-state a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <a href="index.html" class="back-link">← Torna all'Oasi (主页)</a>
+            <div class="page-title">Mazzo Italiano 🌿</div>
+        </header>
+
+        <div class="deck-info">
+            <span>Mazzo di Memoria / 记忆卡片堆</span>
+            <span id="cardCounter">0 Carte</span>
+        </div>
+
+        <div class="card-deck" id="flashcardContainer">
+            </div>
+    </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        renderStoredCards();
+    });
+
+    function getStoredCards() {
+        const cards = localStorage.getItem("it_flashcards");
+        return cards ? JSON.parse(cards) : [];
+    }
+
+    function saveCards(cards) {
+        localStorage.setItem("it_flashcards", JSON.stringify(cards));
+    }
+
+    function toggleFlip(cardElement) {
+        if (cardElement.classList.contains('removing')) return;
+        cardElement.classList.toggle('flipped');
+    }
+
+    function renderStoredCards() {
+        const container = document.getElementById('flashcardContainer');
+        const counter = document.getElementById('cardCounter');
+        const cards = getStoredCards();
+        
+        // 更新卡片总数计数器
+        counter.textContent = `${cards.length} ${cards.length === 1 ? 'Carta' : 'Carte'}`;
+        
+        if (cards.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    你的记忆闪卡堆空空如也 🫙<br>
+                    <p style="font-size: 0.85rem; margin-top: 8px; color: var(--text-sub);">
+                        可以先去 <a href="it-workbench.html">智能翻译工作台</a> 拆解句子并将生词存入卡片哦！
+                    </p>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = cards.map(card => `
+            <div class="flip-card" onclick="toggleFlip(this)" data-id="${card.id}">
+                <div class="flip-card-inner">
+                    <div class="flip-card-front">
+                        <div class="word">${card.word}</div>
+                        <div class="hint">Clicca per voltare / 点击翻面 💡</div>
+                    </div>
+                    <div class="flip-card-back">
+                        <button class="btn-delete-card" onclick="removeCard(event, this)">✕</button>
+                        <div class="meaning">${card.meaning}</div>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function removeCard(event, buttonElement) {
+        event.stopPropagation(); // 阻止触发翻面效果
+        const cardElement = buttonElement.closest('.flip-card');
+        const cardId = parseInt(cardElement.getAttribute('data-id'));
+        cardElement.classList.add('removing');
+        
+        let cards = getStoredCards();
+        cards = cards.filter(c => c.id !== cardId);
+        saveCards(cards);
+
+        // 等待淡出动画结束后重新渲染
+        setTimeout(() => { 
+            renderStoredCards(); 
+        }, 400);
+    }
+</script>
+</body>
+</html>
