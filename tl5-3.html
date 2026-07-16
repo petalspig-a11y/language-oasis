@@ -265,11 +265,11 @@
                     <div class="panel-title">01 / Style Preset & Source Text</div>
                     
                     <div class="style-presets">
-                        <button class="preset-btn active" id="style-general" onclick="selectStyle('general', this)">🌷 通用转译</button>
-                        <button class="preset-btn" id="style-literary" onclick="selectStyle('literary', this)">🌷 文学风</button>
-                        <button class="preset-btn" id="style-newmedia" onclick="selectStyle('newmedia', this)">🌷 新媒体</button>
-                        <button class="preset-btn" id="style-news" onclick="selectStyle('news', this)">🌷 新新闻风</button>
-                        <button class="preset-btn" id="style-travel" onclick="selectStyle('travel', this)">🌷 文旅风</button>
+                        <button class="preset-btn active" id="style-general" onclick="selectStyle('general', this)">通用转译</button>
+                        <button class="preset-btn" id="style-literary" onclick="selectStyle('literary', this)">文学风</button>
+                        <button class="preset-btn" id="style-newmedia" onclick="selectStyle('newmedia', this)">新媒体</button>
+                        <button class="preset-btn" id="style-news" onclick="selectStyle('news', this)">新闻风</button>
+                        <button class="preset-btn" id="style-travel" onclick="selectStyle('travel', this)">文旅风</button>
                     </div>
 
                     <textarea id="sourceText" style="height: 110px;" placeholder="Type or paste your text here..."></textarea>
@@ -288,7 +288,7 @@
                 <div class="panel">
                     <div class="panel-title">02 / Refinement Dialogue</div>
                     <div class="chat-history" id="chatHistory">
-                        <div class="msg ai">选择上方 🌷 风格预设并获取初译后，如果你有更细腻的调整想法，可以在下方继续指引我改译。</div>
+                        <div class="msg ai">选择上方风格预设并获取初译后，如果你有更细腻的调整想法，可以在下方继续指引我改译。</div>
                     </div>
                     <div style="display: flex; gap: 10px;">
                         <input type="text" id="chatInput" placeholder="告诉 AI 如何调整译文..." style="flex: 1; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 0.9rem;" onkeydown="if(event.key==='Enter') sendAdjustment()">

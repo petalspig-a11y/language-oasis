@@ -31,7 +31,7 @@
             align-items: center;
         }
 
-        /* 2. 顶部导航栏 (换成高级灰) */
+        /* 2. 顶部导航栏 */
         nav {
             width: 100%;
             max-width: 1100px;
@@ -54,7 +54,7 @@
             display: block;
             font-weight: 400;
             font-size: 0.9rem;
-            color: var(--text-muted); /* 换成高级灰 */
+            color: var(--text-muted);
         }
 
         .nav-links {
@@ -65,7 +65,7 @@
 
         .nav-links a {
             text-decoration: none;
-            color: var(--text-muted); /* 换成高级灰 */
+            color: var(--text-muted);
             font-size: 0.85rem;
             font-weight: 500;
             text-transform: uppercase;
@@ -127,10 +127,10 @@
         }
 
         .intro-image img {
-            width: 100%;          /* 撑满右侧格子，实现与下方按钮绝对对齐 */
-            aspect-ratio: 3 / 4;  /* 现代浏览器无脑锁定 3:4 比例的神器 */
+            width: 100%;
+            aspect-ratio: 3 / 4;
             border-radius: 12px;
-            object-fit: cover;    /* 确保图片裁剪得当，绝不拉伸 */
+            object-fit: cover;
         }
 
         /* 4. 下方主内容区 */
@@ -222,18 +222,18 @@
 <body>
 
     <nav>
-    <a href="#" class="nav-logo" onclick="showAllOasis(event)" style="text-decoration: none;">
-        <div style="display: flex; align-items: center; gap: 6px;">
-            <span style="font-weight: 700; font-size: 1.1rem; color: var(--text-main);">Lia |</span>
-            <img src="nature-2.png" alt="Flower Icon" style="width: 22px; height: 22px; object-fit: contain; vertical-align: middle;">
+        <a href="#" class="nav-logo" onclick="showAllOasis(event)" style="text-decoration: none;">
+            <div style="display: flex; align-items: center; gap: 6px;">
+                <span style="font-weight: 700; font-size: 1.1rem; color: var(--text-main);">Lia |</span>
+                <img src="nature-2.png" alt="Flower Icon" style="width: 22px; height: 22px; object-fit: contain; vertical-align: middle;">
+            </div>
+            <span style="display: block; font-weight: 400; font-size: 0.9rem; color: var(--text-muted); margin-top: 4px;">Language Oasis</span>
+        </a>
+        <div class="nav-links">
+            <a href="tl5-3.html" onclick="prepareTodayTranslation()">English Workbench</a>
+            <a href="#italian-section" onclick="switchToItalian(event)">Italian Oasis</a>
         </div>
-        <span style="display: block; font-weight: 400; font-size: 0.9rem; color: var(--text-muted); margin-top: 4px;">Language Oasis</span>
-    </a>
-    <div class="nav-links">
-        <a href="tl5-3.html" onclick="prepareTodayTranslation()">English Workbench</a>
-        <a href="#italian-section" onclick="switchToItalian(event)">Italian Oasis</a>
-    </div>
-</nav>
+    </nav>
 
     <header class="intro-section">
         <div class="intro-text">
@@ -247,69 +247,68 @@
                     style="resize: none; width: 100%; height: 160px; padding: 12px; border: 1px solid #a4bbf5; border-radius: 8px; font-family: inherit; font-size: 0.9rem; line-height: 1.6; box-sizing: border-box; outline: none;"
                 ></textarea>
 
-               <a href="tl5-3.html" id="workbench-link" onclick="prepareTodayTranslation()" style="text-decoration: none; font-size: 0.8rem; color: var(--text-muted); font-weight: 500; letter-spacing: 0.5px; transition: color 0.2s;" onmouseover="this.style.color='var(--text-main)'" onmouseout="this.style.color='var(--text-muted)'">
-                        Into Translation Workbench →
-</a>
-                </div>
-
-                <script>
-                    function getTodayDateString() {
-                        const today = new Date();
-                        const options = { month: 'short', day: 'numeric' };
-                        const dateStr = today.toLocaleDateString('en-US', options); 
-                        return `${dateStr} /`;
-                    }
-
-                    function saveLogWithDate(currentValue) {
-                        const todayStr = getTodayDateString();
-                        if (!currentValue.trim()) {
-                            localStorage.setItem('savedBrainDump', '');
-                            return;
-                        }
-
-                        if (!currentValue.startsWith(todayStr)) {
-                            const oldContent = localStorage.getItem('savedBrainDump') || '';
-                            const cleanOld = oldContent.replace(todayStr, '').trim();
-                            currentValue = `${todayStr} ${currentValue.replace(todayStr, '').trim()}\n\n${cleanOld}`.trim();
-                            document.getElementById('brainDump').value = currentValue;
-                        }
-                        localStorage.setItem('savedBrainDump', currentValue);
-                    }
-
-                    window.addEventListener('DOMContentLoaded', () => {
-                        const savedData = localStorage.getItem('savedBrainDump') || '';
-                        const todayStr = getTodayDateString();
-                        const box = document.getElementById('brainDump');
-
-                        if (savedData && !savedData.startsWith(todayStr)) {
-                            box.value = `${todayStr} \n\n${savedData}`;
-                            localStorage.setItem('savedBrainDump', box.value);
-                        } else {
-                            box.value = savedData;
-                        }
-                    });
-
-                    function prepareTodayTranslation() {
-                        const totalContent = document.getElementById('brainDump').value;
-                        const todayStr = getTodayDateString();
-                        
-                        if (totalContent.startsWith(todayStr)) {
-                            let todaySegment = totalContent.substring(todayStr.length).trim();
-                            const lines = todaySegment.split('\n');
-                            let cleanTodayText = [];
-                            for (let line of lines) {
-                                if (line.includes(' /') && line.length < 15) {
-                                    break; 
-                                }
-                                cleanTodayText.push(line);
-                            }
-                            localStorage.setItem('todayTranslationDraft', cleanTodayText.join('\n').trim());
-                        } else {
-                            localStorage.setItem('todayTranslationDraft', totalContent);
-                        }
-                    }
-                </script>
+                <a href="tl5-3.html" id="workbench-link" onclick="prepareTodayTranslation()" style="text-decoration: none; font-size: 0.8rem; color: var(--text-muted); font-weight: 500; letter-spacing: 0.5px; transition: color 0.2s;" onmouseover="this.style.color='var(--text-main)'" onmouseout="this.style.color='var(--text-muted)'">
+                    Into Translation Workbench →
+                </a>
             </div>
+
+            <script>
+                function getTodayDateString() {
+                    const today = new Date();
+                    const options = { month: 'short', day: 'numeric' };
+                    const dateStr = today.toLocaleDateString('en-US', options); 
+                    return `${dateStr} /`;
+                }
+
+                function saveLogWithDate(currentValue) {
+                    const todayStr = getTodayDateString();
+                    if (!currentValue.trim()) {
+                        localStorage.setItem('savedBrainDump', '');
+                        return;
+                    }
+
+                    if (!currentValue.startsWith(todayStr)) {
+                        const oldContent = localStorage.getItem('savedBrainDump') || '';
+                        const cleanOld = oldContent.replace(todayStr, '').trim();
+                        currentValue = `${todayStr} ${currentValue.replace(todayStr, '').trim()}\n\n${cleanOld}`.trim();
+                        document.getElementById('brainDump').value = currentValue;
+                    }
+                    localStorage.setItem('savedBrainDump', currentValue);
+                }
+
+                window.addEventListener('DOMContentLoaded', () => {
+                    const savedData = localStorage.getItem('savedBrainDump') || '';
+                    const todayStr = getTodayDateString();
+                    const box = document.getElementById('brainDump');
+
+                    if (savedData && !savedData.startsWith(todayStr)) {
+                        box.value = `${todayStr} \n\n${savedData}`;
+                        localStorage.setItem('savedBrainDump', box.value);
+                    } else {
+                        box.value = savedData;
+                    }
+                });
+
+                function prepareTodayTranslation() {
+                    const totalContent = document.getElementById('brainDump').value;
+                    const todayStr = getTodayDateString();
+                    
+                    if (totalContent.startsWith(todayStr)) {
+                        let todaySegment = totalContent.substring(todayStr.length).trim();
+                        const lines = todaySegment.split('\n');
+                        let cleanTodayText = [];
+                        for (let line of lines) {
+                            if (line.includes(' /') && line.length < 15) {
+                                break; 
+                            }
+                            cleanTodayText.push(line);
+                        }
+                        localStorage.setItem('todayTranslationDraft', cleanTodayText.join('\n').trim());
+                    } else {
+                        localStorage.setItem('todayTranslationDraft', totalContent);
+                    }
+                }
+            </script>
         </div>
         <div class="intro-image">
             <img src="https://petalspig-a11y.github.io/lia.github.io/shanghai.jpg" alt="Lia">
@@ -317,8 +316,7 @@
     </header>
 
     <main class="content-container" id="english-section">
-        
-        <div class="local-tool-bar">
+        <div class="local-tool-bar" id="localBar">
             <div>
                 <div style="font-weight: 700; font-size: 1rem; margin-bottom: 4px;"> Local PDF Workstation</div>
                 <div style="font-size: 0.85rem; color: var(--text-sub);">Instantly access your local folder for translation references or textbooks.</div>
@@ -327,7 +325,6 @@
         </div>
 
         <div class="links-grid">
-
             <div class="category-card" id="social">
                 <div class="category-title">01 / Social Media</div>
                 <div class="link-item">
@@ -399,67 +396,57 @@
                     <div class="link-desc">China's leading English-language newspaper, providing insights and localization.</div>
                 </div>
             </div>
-
         </div>
-   </main>
+    </main>
 
     <section id="italian-section" style="width: 100%; max-width: 1100px; padding: 60px 20px 40px 20px; box-sizing: border-box; margin: 0 auto;">
-    
-   <div style="border-bottom: 2px solid var(--text-main); padding-bottom: 10px; margin-bottom: 30px;">
-    <h2 style="font-size: 1.5rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; margin: 0;">
-        Spazio Italiano 🌿
-    </h2>
-    <p style="font-size: 0.85rem; color: var(--text-sub); margin: 5px 0 0 0;">
-        Apri l'oasi della lingua. 
-    </p>
-</div>
-    
-    <div class="links-grid">
+        <div style="border-bottom: 2px solid var(--text-main); padding-bottom: 10px; margin-bottom: 30px;">
+            <h2 style="font-size: 1.5rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; margin: 0;">
+                Spazio Italiano 🌿
+            </h2>
+            <p style="font-size: 0.85rem; color: var(--text-sub); margin: 5px 0 0 0;">
+                Apri l'oasi della lingua. 
+            </p>
+        </div>
         
-        <div class="category-card" style="border-top: 1px solid #ccc; padding-top: 15px;">
-            <div class="category-title" style="font-size: 0.8rem; color: var(--text-muted);">Strumenti / Essential Tools</div>
-            
-            <div class="link-item">
-                <a href="italian-cards.html" target="_blank">Flashcards di Italiano ↗</a>
-                <div class="link-desc">Your custom interactive workspace for Italian vocabulary and grammar review.</div>
+        <div class="links-grid">
+            <div class="category-card" style="border-top: 1px solid #ccc; padding-top: 15px;">
+                <div class="category-title" style="font-size: 0.8rem; color: var(--text-muted);">Strumenti / Essential Tools</div>
+                <div class="link-item">
+                    <a href="italian-cards.html" target="_blank">Flashcards di Italiano ↗</a>
+                    <div class="link-desc">Your custom interactive workspace for Italian vocabulary and grammar review.</div>
+                </div>
+                <div class="link-item">
+                    <a href="https://www.wordreference.com/" target="_blank">WordReference Dizionario</a>
+                    <div class="link-desc">A trusted companion for word lookups, verb conjugations, and subtle context nuances.</div>
+                </div>
             </div>
-            
-            <div class="link-item">
-                <a href="https://www.wordreference.com/" target="_blank">WordReference Dizionario</a>
-                <div class="link-desc">A trusted companion for word lookups, verb conjugations, and subtle context nuances.</div>
+
+            <div class="category-card" style="border-top: 1px solid #ccc; padding-top: 15px;">
+                <div class="category-title" style="font-size: 0.8rem; color: var(--text-muted);">Immersione / Media & Culture</div>
+                <div class="link-item">
+                    <a href="https://www.raiplay.it/" target="_blank">RaiPlay</a>
+                    <div class="link-desc">Stream authentic Italian TV series, documentaries, and live news directly from Italy.</div>
+                </div>
+                <div class="link-item">
+                    <a href="https://www.gamberorosso.it/" target="_blank">Gambero Rosso</a>
+                    <div class="link-desc">Explore beautiful Italian food culture, wine ratings, and authentic lifestyle recipes.</div>
+                </div>
+            </div>
+
+            <div class="category-card" style="border-top: 1px solid #ccc; padding-top: 15px;">
+                <div class="category-title" style="font-size: 0.8rem; color: var(--text-muted);">Ispirazione / Aesthetic Design</div>
+                <div class="link-item">
+                    <a href="https://www.vogue.it/" target="_blank">Vogue Italia</a>
+                    <div class="link-desc">Immerse yourself in world-class fashion editorial language and high-end visual grids.</div>
+                </div>
+                <div class="link-item">
+                    <a href="#" style="color: #ccc; cursor: default; text-decoration: none;">Spazio Riservato ☕</a>
+                    <div class="link-desc">Placeholder for your next breakthrough Italian podcast, design hub, or creative reference.</div>
+                </div>
             </div>
         </div>
-
-        <div class="category-card" style="border-top: 1px solid #ccc; padding-top: 15px;">
-            <div class="category-title" style="font-size: 0.8rem; color: var(--text-muted);">Immersione / Media & Culture</div>
-            
-            <div class="link-item">
-                <a href="https://www.raiplay.it/" target="_blank">RaiPlay</a>
-                <div class="link-desc">Stream authentic Italian TV series, documentaries, and live news directly from Italy.</div>
-            </div>
-            
-            <div class="link-item">
-                <a href="https://www.gamberorosso.it/" target="_blank">Gambero Rosso</a>
-                <div class="link-desc">Explore beautiful Italian food culture, wine ratings, and authentic lifestyle recipes.</div>
-            </div>
-        </div>
-
-        <div class="category-card" style="border-top: 1px solid #ccc; padding-top: 15px;">
-            <div class="category-title" style="font-size: 0.8rem; color: var(--text-muted);">Ispirazione / Aesthetic Design</div>
-            
-            <div class="link-item">
-                <a href="https://www.vogue.it/" target="_blank">Vogue Italia</a>
-                <div class="link-desc">Immerse yourself in world-class fashion editorial language and high-end visual grids.</div>
-            </div>
-            
-            <div class="link-item">
-                <a href="#" style="color: #ccc; cursor: default; text-decoration: none;">Spazio Riservato ☕</a>
-                <div class="link-desc">Placeholder for your next breakthrough Italian podcast, design hub, or creative reference.</div>
-            </div>
-        </div>
-
-    </div>
-</section>
+    </section>
 
     <script>
         const userAgent = navigator.userAgent.toLowerCase();
@@ -479,52 +466,60 @@
             Buonanotte ✨
         </p>
     </div>
-<script>
-    function switchToItalian(event) {
-        event.preventDefault(); // 阻止默认的突兀跳转
-        
-        // 1. 让中间的 Local Workstation 和英语模块通通隐身
-        const englishSec = document.getElementById('english-section');
-        if (englishSec) englishSec.style.display = 'none';
-        
-        const localBar = document.querySelector('.local-tool-bar');
-        if (localBar) localBar.style.display = 'none';
-        
-        // ✨【新加的代码 1】：让刚才那个链接变身去意大利语工作台
-        const link = document.getElementById('workbench-link');
-        if (link) {
-            link.textContent = 'Into Italian Workbench →'; // 改变文字
-            link.href = 'it-workbench.html'; // 改变跳转的目的地文件
-        }
-        
-        // 2. 确保意大利语板块是露出来的，并优雅滚动
-        const italianSec = document.getElementById('italian-section');
-        if (italianSec) {
-            italianSec.style.display = 'block';
-            italianSec.scrollIntoView({ behavior: 'smooth' });
-        }
-    }
 
-    function showAllOasis(event) {
-        event.preventDefault();
-        // 点击 Logo 恢复初始全貌
-        const englishSec = document.getElementById('english-section');
-        if (englishSec) englishSec.style.display = 'block';
-        
-        const localBar = document.querySelector('.local-tool-bar');
-        if (localBar) localBar.style.display = 'flex';
-        
-        // ✨【新加的代码 2】：把链接恢复为英语工作台
-        const link = document.getElementById('workbench-link');
-        if (link) {
-            link.textContent = 'Into Translation Workbench →';
-            link.href = 'tl5-3.html';
+    <script>
+        function switchToItalian(event) {
+            event.preventDefault(); // 阻止默认跳转锚点
+            
+            // 1. 隐藏英语主板块（包含它内部的 local-tool-bar）
+            const englishSec = document.getElementById('english-section');
+            if (englishSec) englishSec.style.display = 'none';
+            
+            // 2. 改变文本框下的“工作台跳转链接”
+            const link = document.getElementById('workbench-link');
+            if (link) {
+                link.textContent = 'Into Italian Workbench →';
+                link.href = 'it-workbench.html';
+                // 动态改变跳转触发的事件（改为存储意大利语数据）
+                link.setAttribute('onclick', 'prepareItalianTranslation()');
+            }
+            
+            // 3. 显示并平滑滚动到意大利语板块
+            const italianSec = document.getElementById('italian-section');
+            if (italianSec) {
+                italianSec.style.display = 'block';
+                italianSec.scrollIntoView({ behavior: 'smooth' });
+            }
         }
-        
-        const italianSec = document.getElementById('italian-section');
-        if (italianSec) italianSec.style.display = 'block';
-        
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-</script>
+
+        function showAllOasis(event) {
+            event.preventDefault();
+            
+            // 1. 恢复英语板块展示
+            const englishSec = document.getElementById('english-section');
+            if (englishSec) englishSec.style.display = 'block';
+            
+            // 2. 恢复文本框下工作台链接为英语
+            const link = document.getElementById('workbench-link');
+            if (link) {
+                link.textContent = 'Into Translation Workbench →';
+                link.href = 'tl5-3.html';
+                link.setAttribute('onclick', 'prepareTodayTranslation()');
+            }
+            
+            // 3. 恢复意大利语板块显示（Logo点击时展示全貌）
+            const italianSec = document.getElementById('italian-section');
+            if (italianSec) italianSec.style.display = 'block';
+            
+            // 4. 平滑滚动回顶部
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // 用于意大利语工作台的草稿准备逻辑（可选扩展）
+        function prepareItalianTranslation() {
+            const totalContent = document.getElementById('brainDump').value;
+            localStorage.setItem('todayItalianDraft', totalContent);
+        }
+    </script>
 </body>
+</html>
