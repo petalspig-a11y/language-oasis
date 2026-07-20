@@ -289,25 +289,33 @@
                     }
                 });
 
-                function prepareTodayTranslation() {
-                    const totalContent = document.getElementById('brainDump').value;
-                    const todayStr = getTodayDateString();
-                    
-                    if (totalContent.startsWith(todayStr)) {
-                        let todaySegment = totalContent.substring(todayStr.length).trim();
-                        const lines = todaySegment.split('\n');
-                        let cleanTodayText = [];
-                        for (let line of lines) {
-                            if (line.includes(' /') && line.length < 15) {
-                                break; 
-                            }
-                            cleanTodayText.push(line);
-                        }
-                        localStorage.setItem('todayTranslationDraft', cleanTodayText.join('\n').trim());
-                    } else {
-                        localStorage.setItem('todayTranslationDraft', totalContent);
-                    }
-                }
+               function prepareTodayTranslation() {
+    const totalContent = document.getElementById('brainDump').value;
+    const todayStr = getTodayDateString(); // 例如 "Jul 19 /"
+    
+    if (totalContent.startsWith(todayStr)) {
+        // 1. 裁剪掉开头的今日日期头
+        let afterToday = totalContent.substring(todayStr.length);
+        
+        // 2. 正则匹配历史日期标记（如 "Jul 18 /"、"Jul 16 /" 等）
+        const datePattern = /[A-Z][a-z]{2}\s+\d+\s*\//;
+        const match = afterToday.match(datePattern);
+        
+        let todayText = "";
+        if (match) {
+            // 只截取到下一个历史日期出现前的当前内容
+            todayText = afterToday.substring(0, match.index);
+        } else {
+            // 如果下方没有更早的日期，说明全都是今天的记录
+            todayText = afterToday;
+        }
+        
+        localStorage.setItem('todayTranslationDraft', todayText.trim());
+    } else {
+        // 如果第一行不是今天的日期，说明今天尚未写入新内容，传入空草稿
+        localStorage.setItem('todayTranslationDraft', '');
+    }
+}
             </script>
         </div>
         <div class="intro-image">
